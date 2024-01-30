@@ -57,7 +57,7 @@ const Playground = ({displayName}: PlaygroundProps) => {
 
     return (
       <>
-        <div className='flex justify-between items-center px-4 py-2 bg-white dark:bg-gray-800'>
+        <div className='flex justify-between items-center px-8 py-4 bg-white dark:bg-gray-800'>
           <div className='flex flex-col'>
             <h1 className='text-xl font-bold text-gray-900 dark-text-gray-100'>Document Title</h1>
             <p className='text-sm text-gray-500 dark-text-gray-400'>Document Description</p>
@@ -95,7 +95,7 @@ const Playground = ({displayName}: PlaygroundProps) => {
         </div>
         <ResizablePanelGroup
             direction='vertical'
-            className={cn('', isDarkMode ? 'bg-gray-900' : 'bg-gray-100')}
+            className={cn('px-8', isDarkMode ? 'bg-gray-900' : 'bg-gray-100')}
         >
             <ResizablePanel defaultSize={50}>
                 <ResizablePanelGroup direction="horizontal">
