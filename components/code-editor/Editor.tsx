@@ -7,12 +7,29 @@ import { javascript } from "@codemirror/lang-javascript";
 import { EditorState } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import { basicSetup } from "codemirror";
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { BiLogoCss3, BiLogoHtml5, BiLogoJavascript } from "react-icons/bi";
 
 interface EditorProps {
     language: string;
     theme: string;
+    className?: string;
     onChange: (content: string) => void;
+}
+
+const greetings = "Greetings, circus";
+
+const languagePlaceholder = (language: string) => {
+    switch (language) {
+        case 'javascript':
+            return `console.log("${greetings}")`;
+        case 'html':
+            return `<h1>${greetings}</h1>`;
+        case 'css':
+            return `h1 { color: Black;}`;
+        default:
+            return '';
+    }
 }
 
 const languageExtension = (language: string) => {
@@ -28,12 +45,31 @@ const languageExtension = (language: string) => {
     }
 };
 
+const getLanguageIcon = (language: string) => {
+    switch (language) {
+        case 'javascript':
+            return <BiLogoJavascript className='text-2xl text-yellow-400' />;
+        case 'html':
+            return <BiLogoHtml5 className='text-2xl text-orange-500' />;
+        case 'css':
+            return <BiLogoCss3 className='text-2xl text-blue-500' />;
+        default:
+            return null;
+    }
+}
+
 const themeExtension = (theme: string) => {
     return theme === 'dark' ? materialDark : materialLight;
 }
 
+
 const Editor = ({language, theme, onChange}: EditorProps) => {
     const editorRef = useRef(null);
+    const [isExpanded, setIsExpanded] = useState(true);
+
+    const toggleExpand = () => {
+        setIsExpanded(!isExpanded);
+    }
 
     useEffect(() => {
         if (!editorRef.current) return;
@@ -45,7 +81,7 @@ const Editor = ({language, theme, onChange}: EditorProps) => {
         });
 
         const startState = EditorState.create({
-            doc: "Hello World",
+            doc: languagePlaceholder(language),
             extensions: [
                 basicSetup,
                 updateListener,
@@ -65,7 +101,14 @@ const Editor = ({language, theme, onChange}: EditorProps) => {
         };
     }, [language, theme, onChange]);
 
-    return <div ref={editorRef} />;
+    return (
+        <div className=''>
+            <div className='flex justify-between items-center p-[0.5em]'>
+                {getLanguageIcon(language)}
+            </div>
+            <div className='editor' ref={editorRef} />
+        </div>
+    )
 };
 
 export default Editor;
