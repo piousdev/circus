@@ -1,0 +1,19 @@
+{
+    "workbench.colorCustomizations": {
+        "[Aura Dark]": {
+            "editor.background": "#110f17",
+            "terminal.background": "#110f17",
+            "activityBar.background": "#110f17",
+            "statusBar.background": "#110f17",
+            "editorGroupHeader.tabsBackground": "#110f17",
+            "tab.inactiveBackground": "#110f17"
+        },
+        "editor.wordHighlightStrongBorder": "#FF6347",
+        "editor.wordHighlightBorder": "#FFD700",
+        "editor.selectionHighlightBorder": "#A9A9A9"
+    },
+    "cSpell.words": [
+        "codemirror",
+        "lucide"
+    ]
+}
