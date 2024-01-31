@@ -4,49 +4,58 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url  	    = env("DATABASE_URL")
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id    String @id @default(cuid())
+  id      String  @id @default(uuid())
   clerkId String? @unique
-  email String @unique
-  name  String?
-  files File[]
+  email   String  @unique
+  name    String?
+  files   File[]
 
   @@map("users")
 }
 
 model File {
-  id          String    @id @default(cuid())
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String
-  name        String
-  description String
-  content     String
-  language    String
-  starred     Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  versions    Version[]
-  currentVersionId String? @map("current_version_id")
+  id               String      @id @default(uuid())
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String
+  name             String
+  description      String
+  content          String
+  language         String
+  starred          Boolean     @default(false)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  versions         Version[]
+  currentVersionId String?     @map("current_version_id")
+  collection       Collection? @relation(fields: [collectionId], references: [id])
+  collectionId     String?
 
   @@index([userId])
   @@map("files")
 }
 
 model Version {
-  id          String   @id @default(cuid())
-  file        File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  fileId      String
-  version     String  @default("1.0.0")
-  content     String
-  createdById String? @map("created_by")
-  changeDescription  String? @map("change_description")
-  status      String?  @default("draft")
-  createdAt   DateTime @default(now())
+  id                String   @id @default(uuid())
+  file              File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId            String
+  version           String   @default("1.0.0")
+  content           String
+  createdById       String?  @map("created_by")
+  changeDescription String?  @map("change_description")
+  status            String?  @default("draft")
+  createdAt         DateTime @default(now())
 
   @@index([fileId])
   @@map("versions")
+}
+
+model Collection {
+  id     String  @id @default(uuid())
+  name   String
+  files  File[]
+  fileId String?
 }

@@ -3,20 +3,30 @@ import { Prisma, PrismaClient, File as PrismaFile } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export class FileService {
-  static async createFile(userId: string, name: string, description: string, content: string, language: string): Promise<PrismaFile> {
+  static async createFile(clerkId: string, name: string, description: string, content: string, language: string, starred: boolean): Promise<PrismaFile> {
+    console.log('[FileService] createFile - Start');
+    console.log('[FileService] createFile - Parameters:', { clerkId, name, description, content, language, starred });
+
     try {
-      return await prisma.file.create({
-        data: {
-          user: { connect: { id: userId } },
-          name,
-          description,
-          content,
-          language,
-        },
-      });
+        const file = await prisma.file.create({
+            data: {
+                user: {
+                  connect: { clerkId: clerkId },
+                },
+                name,
+                description,
+                content,
+                language,
+                starred
+            }
+        });
+        console.log('[FileService] createFile - File created:', file);
+        return file;
     } catch (error) {
-      console.error('Error in createFile: ', error);
-      throw error;
+        console.error('[FileService] createFile - Error:', error);
+        throw error;
+    } finally {
+        console.log('[FileService] createFile - End');
     }
   }
 

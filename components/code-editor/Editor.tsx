@@ -24,9 +24,9 @@ const languagePlaceholder = (language: string) => {
         case 'javascript':
             return `console.log("${greetings}")`;
         case 'html':
-            return `<h1>${greetings}</h1>`;
+            return `<p>${greetings}</p>`;
         case 'css':
-            return `h1 { color: Black;}`;
+            return `p { color: default;}`;
         default:
             return '';
     }
@@ -67,11 +67,14 @@ const Editor = ({language, theme, onChange}: EditorProps) => {
     const editorRef = useRef(null);
     const [isExpanded, setIsExpanded] = useState(true);
 
+    // console.log('Editor: Current theme', theme);
+
     const toggleExpand = () => {
         setIsExpanded(!isExpanded);
     }
 
     useEffect(() => {
+        // console.log("Editor useEffect: Current theme", theme);
         if (!editorRef.current) return;
 
         const updateListener = EditorView.updateListener.of((update) => {
@@ -80,16 +83,21 @@ const Editor = ({language, theme, onChange}: EditorProps) => {
             }
         });
 
+        const themeExt = themeExtension(theme);
+        // console.log("themeExtension returns:", themeExt);
+
         const startState = EditorState.create({
             doc: languagePlaceholder(language),
             extensions: [
                 basicSetup,
                 updateListener,
-                themeExtension(theme),
+                themeExt, // themeExtension(theme),
                 keymap.of(defaultKeymap),
                 languageExtension(language)
             ]
         });
+
+        // console.log("Editor: Creating new EditorView with theme", theme);
 
         const view = new EditorView({
             state: startState,
@@ -97,6 +105,7 @@ const Editor = ({language, theme, onChange}: EditorProps) => {
         });
 
         return () => {
+            // console.log("Editor: Destroying EditorView with theme", theme);
             view.destroy();
         };
     }, [language, theme, onChange]);

@@ -16,13 +16,13 @@ const Navbar = () => {
                 <div className="mr-4 hidden md:flex">
                     <LogoContainer />
                     <nav className={cn("flex items-center justify-between gap-6 text-sm ml-[2rem]", nunitoSans.className)}>
-                        <Link href="#">Hub</Link>
+                        <Link href="/hub">Hub</Link>
                         <Link href="/playground">Playground</Link>
                         <Link href="#">Developers</Link>
                         <Link href="#">Dashboard</Link>
                     </nav>
                 </div>
-                <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+                <div className="flex flex-1 items-center justify-between space-x-4 md:justify-end">
                     <Search />
                     <UserButton afterSignOutUrl="/" />
                     <ToggleTheme />
