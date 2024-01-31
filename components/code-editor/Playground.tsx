@@ -8,10 +8,10 @@ import {
 } from "@/components/ui/resizable";
 import { useToast } from "@/components/ui/use-toast";
 import { useTheme } from "@/context/use-theme";
-import useFile from "@/hooks/useFile";
+import useFile, { DatabaseError, NetworkError } from "@/hooks/useFile";
+import getIframeSrcDoc from "@/utils/getIframeSrcDoc";
 import { File as fileContent } from "@prisma/client";
 import { Save, Star, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Input } from "../ui/input";
 
@@ -21,16 +21,30 @@ interface PlaygroundProps {
   collections: any;
 }
 
+type SavedFile = {
+  id: string;
+  userId: string;
+  name: string;
+  description: string;
+  content: string;
+  language: string;
+  starred: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  currentVersionId: string | null;
+  collectionId: string | null;
+};
+
 let documentCount = 0;
 
 const Playground = ({ displayName, initialData }: PlaygroundProps) => {
-  const router = useRouter();
-  const { toast } = useToast();
+  useToast();
   const [htmlContent, setHtmlContent] = useState<string>("");
   const [cssContent, setCssContent] = useState<string>("");
   const [jsContent, setJsContent] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const { saveFile: saveFileHook, isLoading } = useFile();
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -51,30 +65,19 @@ const Playground = ({ displayName, initialData }: PlaygroundProps) => {
   } - ${documentCount}`;
   const { theme } = useTheme();
 
-  const getIframeSrcDoc = () => {
-    return `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>${documentTitle}</title>
-            <style>${cssContent}</style>
-        </head>
-        <body class='iframeBody'>
-            ${htmlContent}
-            <script>
-              ${jsContent}
-            </script>
-        </body>
-        </html>
-      `;
-  };
-
-  const { saveFile: saveFileHook, isLoading } = useFile();
-
+  /**
+   * Saves the file with the current content and metadata.
+   * @returns {Promise<void>} A promise that resolves when the file is saved successfully.
+   */
   const saveFile = async () => {
-    const fileContent = getIframeSrcDoc().trim();
+    const iframeDocument = {
+      documentTitle: "My Document",
+      cssContent: "body { background-color: lightblue; }",
+      htmlContent: "<h1>Hello, world!</h1>",
+      jsContent: 'console.log("Hello, world!");',
+    };
+
+    const fileContent = getIframeSrcDoc(iframeDocument).trim();
     const fileData = {
       id: initialData?.id,
       name: documentTitle,
@@ -86,22 +89,20 @@ const Playground = ({ displayName, initialData }: PlaygroundProps) => {
 
     console.log("Saving file with body:", fileData);
 
-    try {
-      const savedFile = await saveFileHook(
-        fileData,
-        (file) => file,
-        (error) => error
-      );
+    const onSuccess = (file: SavedFile) => {
+      console.log(`Saved File: ${file}`);
+    };
 
-      console.log(`Saved File: ${savedFile}`);
-    } catch (error) {
+    const onError = (error: DatabaseError | NetworkError) => {
       console.log(`Error saving file: ${error}`);
-    }
+    };
+
+    await saveFileHook(fileData, onSuccess, onError);
   };
 
   return (
     <>
-      <div className="flex justify-between items-center px-8 py-4 bg-background">
+      <div className="flex justify-between items-center px-8 py-4">
         <div className="flex flex-row gap-2">
           <Input
             className=""
@@ -167,10 +168,15 @@ const Playground = ({ displayName, initialData }: PlaygroundProps) => {
         <ResizablePanel defaultSize={50}>
           <div className="iframe">
             <iframe
-              className="bg-background text-forground"
+              className=""
               title="output"
               sandbox="allow-scripts"
-              srcDoc={getIframeSrcDoc()}
+              srcDoc={getIframeSrcDoc({
+                documentTitle,
+                cssContent,
+                htmlContent,
+                jsContent,
+              })}
               style={{
                 border: "none",
               }}
